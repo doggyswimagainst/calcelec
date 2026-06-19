@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.toast
+.ipynb_checkpoints
+
+# Git
+.git/
+.gitignore
+
+# Local calculation outputs & documentation artifacts
+*.pdf
+*.txt
+!requirements.txt
+*.md
+.gemini/

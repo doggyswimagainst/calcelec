@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Calculadora Per-Unit (p.u.) Profesional</title>
+  <!-- Google Fonts: Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Outfit', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0b1329; /* Deep Slate-950 */
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Hide scrollbars for cleaner mobile look */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Responsive overrides to scale up readability on mobile screens */
+    @media (max-width: 768px) {
+      .text-xs { font-size: 0.95rem !important; }     /* ~15px */
+      .text-sm { font-size: 1.1rem !important; }      /* ~17.5px */
+      .text-base { font-size: 1.25rem !important; }    /* ~20px */
+      .text-md { font-size: 1.4rem !important; }       /* ~22px */
+      .text-lg { font-size: 1.6rem !important; }       /* ~25.5px */
+      .text-xl { font-size: 1.85rem !important; }      /* ~29.5px */
+      .text-2xl { font-size: 2.2rem !important; }      /* ~35px */
+      
+      /* Specific custom Tailwind utility class sizes */
+      .text-\[10px\] { font-size: 0.9rem !important; }  /* ~14.5px */
+      .text-\[9px\] { font-size: 0.8rem !important; }   /* ~13px */
+      .text-\[11px\] { font-size: 0.95rem !important; } /* ~15px */
+      
+      /* Make form controls large, spacious and easy to interact with on touchscreens */
+      input[type="text"], input[type="number"], select {
+        font-size: 1.15rem !important;
+        padding-top: 0.75rem !important;
+        padding-bottom: 0.75rem !important;
+        height: auto !important;
+      }
+      
+      label {
+        font-size: 0.95rem !important;
+        margin-bottom: 0.35rem !important;
+      }
+
+      /* Adjust bottom navigation size and spacing */
+      nav button {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+      }
+      nav button span {
+        font-size: 0.9rem !important;
+      }
+      nav button svg {
+        width: 1.75rem !important;
+        height: 1.75rem !important;
+      }
+    }
+  </style>
+</head>
+<body class="h-full font-sans text-slate-100 flex flex-col overflow-hidden select-none">
+
+  <!-- TOP BAR -->
+  <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-4 py-3 sticky top-0 z-40 flex items-center justify-between shrink-0">
+    <div class="flex items-center space-x-2">
+      <div class="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+      <span class="text-xs uppercase tracking-widest font-semibold text-slate-400">Modo Terreno v2.0</span>
+    </div>
+    <h1 class="text-md font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">CALCULADORA P.U.</h1>
+    <button onclick="clearAllInputs()" class="text-xs px-2.5 py-1 bg-slate-800 hover:bg-slate-700 active:scale-95 transition-all text-slate-300 rounded border border-slate-700/50">
+      Reiniciar
+    </button>
+  </header>
+
+  <!-- MAIN VIEWPORT (SCROLLABLE CONTENT AREA) -->
+  <main class="flex-1 overflow-y-auto px-4 py-5 pb-24 no-scrollbar">
+
+    <!-- ==================== TAB 1: BASES ==================== -->
+    <div id="tab-bases" class="tab-content space-y-6">
+      
+      <!-- Sub-tabs selection -->
+      <div class="flex p-0.5 bg-slate-950 rounded-lg border border-slate-800">
+        <button onclick="setBaseSubTab('individual')" id="subtab-btn-individual" class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all bg-slate-800 text-blue-400">
+          Base Individual
+        </button>
+        <button onclick="setBaseSubTab('unifilar')" id="subtab-btn-unifilar" class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all text-slate-400 hover:text-slate-200">
+          Unifilar (3 Zonas)
+        </button>
+      </div>
+
+      <!-- SUB-TAB: BASE INDIVIDUAL -->
+      <div id="base-subtab-individual" class="space-y-4">
+        <form id="form-base-ind" class="space-y-4" oninput="calculateBaseIndividual()">
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-4">
+            
+            <!-- Nombre de zona -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Nombre de la Zona</label>
+              <input type="text" id="base-ind-nombre" placeholder="Ej: ZONA 1, GENERACIÓN" class="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none transition-all">
+            </div>
+
+            <!-- Opcion: Sbase + Vbase vs Vbase + Ibase -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Método de Entrada</label>
+              <div class="grid grid-cols-2 gap-2">
+                <label class="flex items-center justify-center p-2 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer text-xs select-none">
+                  <input type="radio" name="base-ind-opcion" value="1" checked class="hidden" onchange="toggleBaseInputs(); calculateBaseIndividual();">
+                  <span class="radio-label text-blue-400">Sbase & Vbase</span>
+                </label>
+                <label class="flex items-center justify-center p-2 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer text-xs select-none">
+                  <input type="radio" name="base-ind-opcion" value="2" class="hidden" onchange="toggleBaseInputs(); calculateBaseIndividual();">
+                  <span class="radio-label text-slate-400">Vbase & Ibase</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Potencia Base -->
+            <div id="base-ind-sbase-group">
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Potencia Base (Sbase)</label>
+              <div class="flex space-x-2">
+                <input type="number" id="base-ind-sbase" step="any" placeholder="Ej: 100" class="flex-1 bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none transition-all">
+                <select id="base-ind-sbase-unit" class="bg-slate-950 border border-slate-800 text-sm text-slate-300 rounded-lg px-2 py-2 outline-none">
+                  <option value="MVA">MVA</option>
+                  <option value="kVA">kVA</option>
+                  <option value="VA">VA</option>
+                  <option value="MW">MW</option>
+                  <option value="kW">kW</option>
+                  <option value="W">W</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Voltaje Base -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Voltaje Base L-L (Vbase)</label>
+              <div class="flex space-x-2">
+                <input type="number" id="base-ind-vbase" step="any" placeholder="Ej: 13.8" class="flex-1 bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none transition-all">
+                <select id="base-ind-vbase-unit" class="bg-slate-950 border border-slate-800 text-sm text-slate-300 rounded-lg px-2 py-2 outline-none">
+                  <option value="kV">kV</option>
+                  <option value="V">V</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Corriente Base (solo si Opcion es 2) -->
+            <div id="base-ind-ibase-group" class="hidden">
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Corriente Base (Ibase)</label>
+              <div class="flex space-x-2">
+                <input type="number" id="base-ind-ibase" step="any" placeholder="Ej: 4180" class="flex-1 bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none transition-all">
+                <select id="base-ind-ibase-unit" class="bg-slate-950 border border-slate-800 text-sm text-slate-300 rounded-lg px-2 py-2 outline-none">
+                  <option value="A">A</option>
+                  <option value="kA">kA</option>
+                </select>
+              </div>
+            </div>
+
+          </div>
+        </form>
+
+        <!-- Warning block -->
+        <div id="base-ind-warning" class="hidden bg-amber-500/10 border border-amber-500/20 text-amber-400 p-3 rounded-lg text-xs flex items-start space-x-2">
+          <svg class="h-4 w-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <span id="base-ind-warning-text">¿Voltaje no estándar?</span>
+        </div>
+
+        <!-- Base individual results card -->
+        <div id="base-ind-result" class="hidden bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+          <div class="bg-blue-950/40 border-b border-blue-900/30 px-4 py-3 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-blue-400">Resultados de Base</h3>
+            <button onclick="saveCurrentCalculation('base-ind')" class="text-xs bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-slate-950 font-bold px-2.5 py-1 rounded shadow-md transition-all flex items-center space-x-1">
+              <span>+ Guardar</span>
+            </button>
+          </div>
+          <div class="p-4 grid grid-cols-2 gap-3">
+            <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80">
+              <span class="block text-[10px] text-slate-400 uppercase tracking-wider">Potencia Base</span>
+              <span id="res-base-ind-sbase" class="text-sm font-bold text-slate-200">-</span>
+            </div>
+            <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80">
+              <span class="block text-[10px] text-slate-400 uppercase tracking-wider">Voltaje Base</span>
+              <span id="res-base-ind-vbase" class="text-sm font-bold text-slate-200">-</span>
+            </div>
+            <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80">
+              <span class="block text-[10px] text-slate-400 uppercase tracking-wider">Corriente Base</span>
+              <span id="res-base-ind-ibase" class="text-sm font-bold text-blue-400">-</span>
+            </div>
+            <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80">
+              <span class="block text-[10px] text-slate-400 uppercase tracking-wider">Impedancia Base</span>
+              <span id="res-base-ind-zbase" class="text-sm font-bold text-blue-400">-</span>
+            </div>
+          </div>
+
+          <!-- Collapsible formula breakdown -->
+          <div class="border-t border-slate-800/80 bg-slate-950/30">
+            <details class="group">
+              <summary class="flex justify-between items-center px-4 py-2.5 text-xs text-slate-400 cursor-pointer hover:text-slate-200 select-none">
+                <span>Ver desarrollo matemático y fórmulas</span>
+                <span class="transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <div class="px-4 pb-4 pt-1 font-mono text-[11px] text-slate-300 leading-relaxed overflow-x-auto whitespace-pre no-scrollbar" id="res-base-ind-desglose"></div>
+            </details>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SUB-TAB: UNIFILAR VIRTUAL (3 ZONAS) -->
+      <div id="base-subtab-unifilar" class="space-y-4 hidden">
+        <form id="form-base-unifilar" class="space-y-4" oninput="calculateBaseUnifilar()">
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-4">
+            
+            <h3 class="text-xs font-bold text-blue-400 uppercase tracking-widest border-b border-slate-800 pb-1.5 flex justify-between items-center">
+              <span>Bases del Sistema (Zona 1)</span>
+            </h3>
+
+            <!-- Sbase general -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Potencia Base General (Sbase)</label>
+              <div class="flex space-x-2">
+                <input type="number" id="unifilar-sbase" step="any" placeholder="Ej: 100" class="flex-1 bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none transition-all">
+                <select id="unifilar-sbase-unit" class="bg-slate-950 border border-slate-800 text-sm text-slate-300 rounded-lg px-2 py-2 outline-none">
+                  <option value="MVA">MVA</option>
+                  <option value="kVA">kVA</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Vbase Zona 1 -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Vbase Zona 1 (Generación)</label>
+              <div class="flex space-x-2">
+                <input type="number" id="unifilar-vbase1" step="any" placeholder="Ej: 13.8" class="flex-1 bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none transition-all">
+                <select id="unifilar-vbase1-unit" class="bg-slate-950 border border-slate-800 text-sm text-slate-300 rounded-lg px-2 py-2 outline-none">
+                  <option value="kV">kV</option>
+                </select>
+              </div>
+            </div>
+
+            <h3 class="text-xs font-bold text-blue-400 uppercase tracking-widest border-b border-slate-800 pt-2 pb-1.5">
+              Transformadores y Relaciones
+            </h3>
+
+            <!-- T1 (Zona 1 -> Zona 2) -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Transformador T1 (Zona 1 → Zona 2)</label>
+              <div class="grid grid-cols-2 gap-2">
+                <div class="flex items-center space-x-1">
+                  <span class="text-xs text-slate-500">Prim:</span>
+                  <input type="number" id="unifilar-t1-prim" step="any" placeholder="Ej: 13.8" class="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none">
+                  <span class="text-xs text-slate-500">kV</span>
+                </div>
+                <div class="flex items-center space-x-1">
+                  <span class="text-xs text-slate-500">Sec:</span>
+                  <input type="number" id="unifilar-t1-sec" step="any" placeholder="Ej: 115" class="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none">
+                  <span class="text-xs text-slate-500">kV</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- T2 (Zona 2 -> Zona 3) -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Transformador T2 (Zona 2 → Zona 3)</label>
+              <div class="grid grid-cols-2 gap-2">
+                <div class="flex items-center space-x-1">
+                  <span class="text-xs text-slate-500">Prim:</span>
+                  <input type="number" id="unifilar-t2-prim" step="any" placeholder="Ej: 115" class="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none">
+                  <span class="text-xs text-slate-500">kV</span>
+                </div>
+                <div class="flex items-center space-x-1">
+                  <span class="text-xs text-slate-500">Sec:</span>
+                  <input type="number" id="unifilar-t2-sec" step="any" placeholder="Ej: 13.2" class="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none">
+                  <span class="text-xs text-slate-500">kV</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </form>
+
+        <!-- Unifilar results card -->
+        <div id="unifilar-result" class="hidden bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+          <div class="bg-blue-950/40 border-b border-blue-900/30 px-4 py-3 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-blue-400">Zonas Virtuales Enlazadas</h3>
+            <button onclick="saveCurrentCalculation('unifilar')" class="text-xs bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-slate-950 font-bold px-2.5 py-1 rounded shadow-md transition-all flex items-center space-x-1">
+              <span>+ Guardar</span>
+            </button>
+          </div>
+          
+          <div class="p-4 space-y-4">
+            
+            <!-- Zona 1 Card -->
+            <div class="bg-slate-950/50 border border-slate-850 p-3 rounded-lg relative overflow-hidden">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold text-slate-300">Zona 1 (Generación)</span>
+                <span id="zone1-warning-badge" class="hidden text-[10px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/20">Voltaje no estándar</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-xs">
+                <div><span class="text-slate-500 block">Vbase</span><strong id="res-z1-vbase" class="text-slate-200">-</strong></div>
+                <div><span class="text-slate-500 block">Ibase</span><strong id="res-z1-ibase" class="text-blue-400">-</strong></div>
+                <div><span class="text-slate-500 block">Zbase</span><strong id="res-z1-zbase" class="text-blue-400">-</strong></div>
+              </div>
+            </div>
+
+            <!-- T1 Divider -->
+            <div class="flex items-center justify-between px-6 text-slate-500">
+              <div class="h-px bg-slate-800 flex-1"></div>
+              <div class="mx-3 text-[10px] uppercase font-semibold bg-slate-950 border border-slate-800 rounded px-2 py-0.5 text-slate-400" id="res-t1-ratio">T1: 13.8/115 kV</div>
+              <div class="h-px bg-slate-800 flex-1"></div>
+            </div>
+
+            <!-- Zona 2 Card -->
+            <div class="bg-slate-950/50 border border-slate-850 p-3 rounded-lg relative overflow-hidden">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold text-slate-300">Zona 2 (Transmisión)</span>
+                <span id="zone2-warning-badge" class="hidden text-[10px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/20">Voltaje no estándar</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-xs">
+                <div><span class="text-slate-500 block">Vbase</span><strong id="res-z2-vbase" class="text-slate-200">-</strong></div>
+                <div><span class="text-slate-500 block">Ibase</span><strong id="res-z2-ibase" class="text-blue-400">-</strong></div>
+                <div><span class="text-slate-500 block">Zbase</span><strong id="res-z2-zbase" class="text-blue-400">-</strong></div>
+              </div>
+            </div>
+
+            <!-- T2 Divider -->
+            <div class="flex items-center justify-between px-6 text-slate-500">
+              <div class="h-px bg-slate-800 flex-1"></div>
+              <div class="mx-3 text-[10px] uppercase font-semibold bg-slate-950 border border-slate-800 rounded px-2 py-0.5 text-slate-400" id="res-t2-ratio">T2: 115/13.2 kV</div>
+              <div class="h-px bg-slate-800 flex-1"></div>
+            </div>
+
+            <!-- Zona 3 Card -->
+            <div class="bg-slate-950/50 border border-slate-850 p-3 rounded-lg relative overflow-hidden">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold text-slate-300">Zona 3 (Distribución)</span>
+                <span id="zone3-warning-badge" class="hidden text-[10px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/20">Voltaje no estándar</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-xs">
+                <div><span class="text-slate-500 block">Vbase</span><strong id="res-z3-vbase" class="text-slate-200">-</strong></div>
+                <div><span class="text-slate-500 block">Ibase</span><strong id="res-z3-ibase" class="text-blue-400">-</strong></div>
+                <div><span class="text-slate-500 block">Zbase</span><strong id="res-z3-zbase" class="text-blue-400">-</strong></div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Collapsible formula breakdown -->
+          <div class="border-t border-slate-800/80 bg-slate-950/30">
+            <details class="group">
+              <summary class="flex justify-between items-center px-4 py-2.5 text-xs text-slate-400 cursor-pointer hover:text-slate-200 select-none">
+                <span>Ver desarrollo matemático y fórmulas</span>
+                <span class="transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <div class="px-4 pb-4 pt-1 font-mono text-[11px] text-slate-300 leading-relaxed overflow-x-auto whitespace-pre no-scrollbar" id="res-z3-desglose"></div>
+            </details>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ==================== TAB 2: PASAR A P.U. ==================== -->
+    <div id="tab-pasar-pu" class="tab-content space-y-6 hidden">
+      
+      <form id="form-pasar-pu" class="space-y-4" oninput="calculatePuConversion()">
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-4">
+          
+          <!-- Direction: Real to PU vs PU to Real -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Dirección de Cálculo</label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="flex items-center justify-center p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer text-xs select-none">
+                <input type="radio" name="pu-direccion" value="real2pu" checked class="hidden" onchange="togglePuDirection(); calculatePuConversion();">
+                <span class="radio-label text-emerald-400">Real → p.u.</span>
+              </label>
+              <label class="flex items-center justify-center p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer text-xs select-none">
+                <input type="radio" name="pu-direccion" value="pu2real" class="hidden" onchange="togglePuDirection(); calculatePuConversion();">
+                <span class="radio-label text-slate-400">p.u. → Real</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Variable parameters -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Nombre Variable</label>
+              <input type="text" id="pu-nombre" placeholder="Ej: V, Z, I, S" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Unidad Física</label>
+              <input type="text" id="pu-unidad" placeholder="Ej: kV, A, ohm, MVA" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+            </div>
+          </div>
+
+          <!-- Base Value -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Valor Base (mismo nombre/unidad)</label>
+            <input type="number" id="pu-base" step="any" placeholder="Ej: 13.2" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+          </div>
+
+          <!-- Complex Number Dual Input Section -->
+          <div class="border-t border-slate-800/80 pt-4 space-y-3">
+            <div class="flex justify-between items-center">
+              <label id="lbl-complex-input" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Valor Real de la Variable</label>
+              
+              <!-- Toggle Complex Type -->
+              <div class="flex p-0.5 bg-slate-950 rounded border border-slate-800">
+                <button type="button" onclick="setComplexInputFormat('rect')" id="cpx-btn-rect" class="px-2 py-0.5 text-[10px] font-bold rounded transition-all bg-slate-800 text-emerald-400">
+                  RECT
+                </button>
+                <button type="button" onclick="setComplexInputFormat('polar')" id="cpx-btn-polar" class="px-2 py-0.5 text-[10px] font-bold rounded transition-all text-slate-400 hover:text-slate-200">
+                  POLAR
+                </button>
+              </div>
+            </div>
+
+            <!-- Rectangular Controls -->
+            <div id="cpx-group-rect" class="grid grid-cols-2 gap-3">
+              <div>
+                <span class="block text-[10px] text-slate-500 mb-0.5">Parte Real (R o P)</span>
+                <input type="number" id="cpx-real" step="any" placeholder="0" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+              </div>
+              <div>
+                <span class="block text-[10px] text-slate-500 mb-0.5">Parte Imaginaria (X o Q)</span>
+                <div class="flex items-center space-x-1">
+                  <input type="number" id="cpx-imag" step="any" placeholder="0" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+                  <span class="text-sm font-bold text-slate-400">j</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Polar Controls -->
+            <div id="cpx-group-polar" class="grid grid-cols-2 gap-3 hidden">
+              <div>
+                <span class="block text-[10px] text-slate-500 mb-0.5">Magnitud (Z o V)</span>
+                <input type="number" id="cpx-mag" step="any" placeholder="1.0" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+              </div>
+              <div>
+                <span class="block text-[10px] text-slate-500 mb-0.5">Ángulo (θ en Grados)</span>
+                <div class="flex items-center space-x-1">
+                  <input type="number" id="cpx-ang" step="any" placeholder="0" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+                  <span class="text-sm text-slate-400">°</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </form>
+
+      <!-- Conversion results card -->
+      <div id="pu-result" class="hidden bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+        <div class="bg-emerald-950/40 border-b border-emerald-900/30 px-4 py-3 flex justify-between items-center">
+          <h3 class="text-sm font-bold text-emerald-400" id="pu-result-title">Cantidad Convertida</h3>
+          <button onclick="saveCurrentCalculation('pu-conv')" class="text-xs bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-slate-950 font-bold px-2.5 py-1 rounded shadow-md transition-all flex items-center space-x-1">
+            <span>+ Guardar</span>
+          </button>
+        </div>
+        <div class="p-4 grid grid-cols-2 gap-3">
+          <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 col-span-2 flex justify-between items-center">
+            <div>
+              <span class="block text-[10px] text-slate-400 uppercase tracking-wider">Formato Rectangular</span>
+              <span id="res-pu-rect" class="text-sm font-mono font-bold text-emerald-400">-</span>
+            </div>
+            <div class="text-right">
+              <span class="block text-[10px] text-slate-400 uppercase tracking-wider">Formato Polar</span>
+              <span id="res-pu-polar" class="text-sm font-mono font-bold text-emerald-400">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Collapsible formula breakdown -->
+        <div class="border-t border-slate-800/80 bg-slate-950/30">
+          <details class="group">
+            <summary class="flex justify-between items-center px-4 py-2.5 text-xs text-slate-400 cursor-pointer hover:text-slate-200 select-none">
+              <span>Ver desarrollo matemático y fórmulas</span>
+              <span class="transition-transform group-open:rotate-180">▼</span>
+            </summary>
+            <div class="px-4 pb-4 pt-1 font-mono text-[11px] text-slate-300 leading-relaxed overflow-x-auto whitespace-pre no-scrollbar" id="res-pu-desglose"></div>
+          </details>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== TAB 3: CAMBIO BASE ==================== -->
+    <div id="tab-cambio-base" class="tab-content space-y-6 hidden">
+      
+      <!-- Sub-tabs selection -->
+      <div class="flex p-0.5 bg-slate-950 rounded-lg border border-slate-800">
+        <button onclick="setCambioSubTab('cambio')" id="subtab-btn-cambio" class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all bg-slate-800 text-blue-400">
+          Cambio Base Impedancia
+        </button>
+        <button onclick="setCambioSubTab('referido')" id="subtab-btn-referido" class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all text-slate-400 hover:text-slate-200">
+          Voltaje Referido
+        </button>
+      </div>
+
+      <!-- SUB-TAB: CAMBIO DE BASE -->
+      <div id="cambio-subtab-cambio" class="space-y-4">
+        <form id="form-cambio-base" class="space-y-4" oninput="calculateCambioBase()">
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-4">
+            
+            <!-- Nombre de impedancia -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Nombre Impedancia</label>
+              <input type="text" id="cambio-nombre" placeholder="Ej: XT1, ZL1" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+            </div>
+
+            <!-- Impedancia Placa (%) switch -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Origen del Parámetro Base 1</label>
+              <div class="grid grid-cols-2 gap-2">
+                <label class="flex items-center justify-center p-2 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer text-xs select-none">
+                  <input type="radio" name="cambio-tipo-z" value="complejo" checked class="hidden" onchange="toggleImpedanciaOrigen(); calculateCambioBase();">
+                  <span class="radio-label text-indigo-400">Zpu1 Complejo</span>
+                </label>
+                <label class="flex items-center justify-center p-2 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer text-xs select-none">
+                  <input type="radio" name="cambio-tipo-z" value="placa" class="hidden" onchange="toggleImpedanciaOrigen(); calculateCambioBase();">
+                  <span class="radio-label text-slate-400">Reactancia de Placa (%)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Reactancia de Placa % (solo si está activada) -->
+            <div id="cambio-placa-group" class="hidden">
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Reactancia de Placa X (%)</label>
+              <div class="flex items-center space-x-2">
+                <input type="number" id="cambio-x-pct" step="any" placeholder="Ej: 7.5" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+                <span class="text-sm font-bold text-slate-400">%</span>
+              </div>
+            </div>
+
+            <!-- Zpu1 Complejo (solo si está activado) -->
+            <div id="cambio-zpu1-group" class="space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Impedancia Zpu1</span>
+                
+                <!-- Toggle Complex Type -->
+                <div class="flex p-0.5 bg-slate-950 rounded border border-slate-800">
+                  <button type="button" onclick="setCambioComplexFormat('rect')" id="cambio-cpx-btn-rect" class="px-2 py-0.5 text-[10px] font-bold rounded transition-all bg-slate-800 text-indigo-400">
+                    RECT
+                  </button>
+                  <button type="button" onclick="setCambioComplexFormat('polar')" id="cambio-cpx-btn-polar" class="px-2 py-0.5 text-[10px] font-bold rounded transition-all text-slate-400 hover:text-slate-200">
+                    POLAR
+                  </button>
+                </div>
+              </div>
+
+              <!-- Rectangular controls -->
+              <div id="cambio-cpx-rect" class="grid grid-cols-2 gap-3">
+                <div>
+                  <span class="block text-[10px] text-slate-500 mb-0.5">Resistencia R1 (p.u.)</span>
+                  <input type="number" id="cambio-z1-real" step="any" placeholder="0" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+                </div>
+                <div>
+                  <span class="block text-[10px] text-slate-500 mb-0.5">Reactancia X1 (p.u.)</span>
+                  <div class="flex items-center space-x-1">
+                    <input type="number" id="cambio-z1-imag" step="any" placeholder="0" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+                    <span class="text-sm font-bold text-slate-400">j</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Polar controls -->
+              <div id="cambio-cpx-polar" class="grid grid-cols-2 gap-3 hidden">
+                <div>
+                  <span class="block text-[10px] text-slate-500 mb-0.5">Magnitud Z1 (p.u.)</span>
+                  <input type="number" id="cambio-z1-mag" step="any" placeholder="1.0" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+                </div>
+                <div>
+                  <span class="block text-[10px] text-slate-500 mb-0.5">Ángulo (θ°)</span>
+                  <div class="flex items-center space-x-1">
+                    <input type="number" id="cambio-z1-ang" step="any" placeholder="0" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+                    <span class="text-sm text-slate-400">°</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bases 1 y 2 grid -->
+            <div class="grid grid-cols-2 gap-4 border-t border-slate-800/80 pt-4">
+              <!-- Base 1 (Original) -->
+              <div class="space-y-3">
+                <span class="block text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-1">Base 1 (Original)</span>
+                <div>
+                  <span class="block text-[10px] text-slate-500 mb-0.5">Sbase1</span>
+                  <div class="flex space-x-1">
+                    <input type="number" id="cambio-sbase1" step="any" placeholder="Ej: 100" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none">
+                    <select id="cambio-sbase1-unit" class="bg-slate-950 border border-slate-800 text-[10px] text-slate-300 rounded-lg px-1 py-1.5 outline-none">
+                      <option value="MVA">MVA</option>
+                      <option value="kVA">kVA</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <span class="block text-[10px] text-slate-500 mb-0.5">Vbase1</span>
+                  <div class="flex space-x-1">
+                    <input type="number" id="cambio-vbase1" step="any" placeholder="Ej: 13.8" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none">
+                    <select id="cambio-vbase1-unit" class="bg-slate-950 border border-slate-800 text-[10px] text-slate-300 rounded-lg px-1 py-1.5 outline-none">
+                      <option value="kV">kV</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Base 2 (Nueva) -->
+              <div class="space-y-3">
+                <span class="block text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-1">Base 2 (Nueva)</span>
+                <div>
+                  <span class="block text-[10px] text-slate-500 mb-0.5">Sbase2</span>
+                  <div class="flex space-x-1">
+                    <input type="number" id="cambio-sbase2" step="any" placeholder="Ej: 100" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none">
+                    <select id="cambio-sbase2-unit" class="bg-slate-950 border border-slate-800 text-[10px] text-slate-300 rounded-lg px-1 py-1.5 outline-none">
+                      <option value="MVA">MVA</option>
+                      <option value="kVA">kVA</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <span class="block text-[10px] text-slate-500 mb-0.5">Vbase2</span>
+                  <div class="flex space-x-1">
+                    <input type="number" id="cambio-vbase2" step="any" placeholder="Ej: 115" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none">
+                    <select id="cambio-vbase2-unit" class="bg-slate-950 border border-slate-800 text-[10px] text-slate-300 rounded-lg px-1 py-1.5 outline-none">
+                      <option value="kV">kV</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </form>
+
+        <!-- Cambio Base results card -->
+        <div id="cambio-result" class="hidden bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+          <div class="bg-indigo-950/40 border-b border-indigo-900/30 px-4 py-3 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-indigo-400">Impedancia Convertida</h3>
+            <button onclick="saveCurrentCalculation('cambio-base')" class="text-xs bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-slate-950 font-bold px-2.5 py-1 rounded shadow-md transition-all flex items-center space-x-1">
+              <span>+ Guardar</span>
+            </button>
+          </div>
+          
+          <div class="p-4 space-y-3">
+            <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 flex justify-between items-center">
+              <div>
+                <span class="block text-[10px] text-slate-400 uppercase tracking-wider">Nuevo Zpu2 (Rectangular)</span>
+                <span id="res-cambio-rect" class="text-sm font-mono font-bold text-indigo-400">-</span>
+              </div>
+              <div class="text-right">
+                <span class="block text-[10px] text-slate-400 uppercase tracking-wider">Nuevo Zpu2 (Polar)</span>
+                <span id="res-cambio-polar" class="text-sm font-mono font-bold text-indigo-400">-</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="bg-slate-950/40 p-2 rounded border border-slate-850">
+                <span class="text-slate-500 block">Zbase 1</span>
+                <span id="res-cambio-zbase1" class="text-slate-300 font-semibold">-</span>
+              </div>
+              <div class="bg-slate-950/40 p-2 rounded border border-slate-850">
+                <span class="text-slate-500 block">Zbase 2</span>
+                <span id="res-cambio-zbase2" class="text-slate-300 font-semibold">-</span>
+              </div>
+              <div class="bg-slate-950/40 p-2 rounded border border-slate-850 col-span-2">
+                <span class="text-slate-500 block">Z física real calculada</span>
+                <span id="res-cambio-zreal" class="text-slate-300 font-semibold font-mono">-</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Collapsible formula breakdown -->
+          <div class="border-t border-slate-800/80 bg-slate-950/30">
+            <details class="group">
+              <summary class="flex justify-between items-center px-4 py-2.5 text-xs text-slate-400 cursor-pointer hover:text-slate-200 select-none">
+                <span>Ver desarrollo matemático y fórmulas</span>
+                <span class="transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <div class="px-4 pb-4 pt-1 font-mono text-[11px] text-slate-300 leading-relaxed overflow-x-auto whitespace-pre no-scrollbar" id="res-cambio-desglose"></div>
+            </details>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SUB-TAB: VOLTAJE REFERIDO -->
+      <div id="cambio-subtab-referido" class="space-y-4 hidden">
+        <form id="form-voltaje-referido" class="space-y-4" oninput="calculateVoltajeReferido()">
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-4">
+            
+            <!-- Nombre de tensión -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Nombre Voltaje</label>
+              <input type="text" id="ref-nombre" placeholder="Ej: Vgen, Vbus1" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+            </div>
+
+            <!-- Voltaje de Origen -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Voltaje Origen (Vorigen)</label>
+              <div class="flex space-x-2">
+                <input type="number" id="ref-vorig" step="any" placeholder="Ej: 13.2" class="flex-1 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+                <select id="ref-vorig-unit" class="bg-slate-950 border border-slate-800 text-sm text-slate-300 rounded-lg px-2 py-2 outline-none">
+                  <option value="kV">kV</option>
+                  <option value="V">V</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Voltaje Nominal Origen del transformador -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Vnom del Transformador en lado Origen</label>
+              <div class="flex space-x-2">
+                <input type="number" id="ref-vnom-orig" step="any" placeholder="Ej: 13.8" class="flex-1 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+                <select id="ref-vnom-orig-unit" class="bg-slate-950 border border-slate-800 text-sm text-slate-300 rounded-lg px-2 py-2 outline-none">
+                  <option value="kV">kV</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Voltaje Nominal Destino del transformador -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Vnom del Transformador en lado Destino</label>
+              <div class="flex space-x-2">
+                <input type="number" id="ref-vnom-dest" step="any" placeholder="Ej: 115" class="flex-1 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+                <select id="ref-vnom-dest-unit" class="bg-slate-950 border border-slate-800 text-sm text-slate-300 rounded-lg px-2 py-2 outline-none">
+                  <option value="kV">kV</option>
+                </select>
+              </div>
+            </div>
+
+          </div>
+        </form>
+
+        <!-- Voltajes no estandar warning -->
+        <div id="ref-warning" class="hidden bg-amber-500/10 border border-amber-500/20 text-amber-400 p-3 rounded-lg text-xs flex items-start space-x-2">
+          <svg class="h-4 w-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <span id="ref-warning-text">Advertencia de tensión comercial no estándar</span>
+        </div>
+
+        <!-- Referred voltage results card -->
+        <div id="referido-result" class="hidden bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+          <div class="bg-indigo-950/40 border-b border-indigo-900/30 px-4 py-3 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-indigo-400">Voltaje Referido</h3>
+            <button onclick="saveCurrentCalculation('voltaje-referido')" class="text-xs bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-slate-950 font-bold px-2.5 py-1 rounded shadow-md transition-all flex items-center space-x-1">
+              <span>+ Guardar</span>
+            </button>
+          </div>
+          <div class="p-4 grid grid-cols-1 gap-3">
+            <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-800/80 text-center">
+              <span class="block text-[10px] text-slate-400 uppercase tracking-wider mb-1">Voltaje Referido L-L</span>
+              <span id="res-ref-vval" class="text-lg font-bold text-indigo-400">-</span>
+            </div>
+          </div>
+
+          <!-- Collapsible formula breakdown -->
+          <div class="border-t border-slate-800/80 bg-slate-950/30">
+            <details class="group">
+              <summary class="flex justify-between items-center px-4 py-2.5 text-xs text-slate-400 cursor-pointer hover:text-slate-200 select-none">
+                <span>Ver desarrollo matemático y fórmulas</span>
+                <span class="transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <div class="px-4 pb-4 pt-1 font-mono text-[11px] text-slate-300 leading-relaxed overflow-x-auto whitespace-pre no-scrollbar" id="res-ref-desglose"></div>
+            </details>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ==================== TAB 4: REPORTE & HISTORIAL ==================== -->
+    <div id="tab-reporte" class="tab-content space-y-6 hidden">
+      
+      <!-- Actions panel -->
+      <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-4">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-1.5">
+          Consolidar Memoria de Cálculo
+        </h3>
+        
+        <!-- Editable Report Title -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Título del Informe PDF</label>
+          <input type="text" id="report-title-input" value="Reporte de Cálculos en Sistema por Unidad" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 pt-2">
+          <button onclick="downloadReportPdf()" class="py-3 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-slate-950 font-bold rounded-lg shadow-lg text-sm transition-all flex items-center justify-center space-x-2">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>Descargar PDF</span>
+          </button>
+          
+          <button onclick="clearSessionHistory()" class="py-3 bg-slate-800 hover:bg-red-950 hover:text-red-400 active:scale-95 text-slate-300 font-bold rounded-lg border border-slate-700/50 text-sm transition-all flex items-center justify-center space-x-2">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            <span>Borrar Historial</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- History log list -->
+      <div class="space-y-4">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center justify-between">
+          <span>Bitácora del Historial</span>
+          <span id="history-counter" class="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded border border-slate-700/50">0 cálculos</span>
+        </h3>
+        
+        <div id="history-empty" class="text-center py-8 text-slate-500 text-xs border-2 border-dashed border-slate-800 rounded-xl">
+          <svg class="h-8 w-8 mx-auto mb-2 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          No hay cálculos guardados. Utiliza el botón "+ Guardar" en las tarjetas de resultados.
+        </div>
+
+        <div id="history-container" class="space-y-4">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FIXED BOTTOM NAVIGATION BAR -->
+  <nav class="bg-slate-900/95 backdrop-blur-md border-t border-slate-850 py-2 fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center select-none shadow-2xl shrink-0">
+    
+    <!-- Tab Bases -->
+    <button onclick="switchTab('bases')" id="nav-btn-bases" class="flex flex-col items-center justify-center w-20 text-blue-400 transition-all active:scale-90">
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+      </svg>
+      <span class="text-[10px] font-medium tracking-tight mt-1">Bases</span>
+    </button>
+    
+    <!-- Tab Pasar a PU -->
+    <button onclick="switchTab('pasar-pu')" id="nav-btn-pasar-pu" class="flex flex-col items-center justify-center w-20 text-slate-500 hover:text-slate-300 transition-all active:scale-90">
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+      </svg>
+      <span class="text-[10px] font-medium tracking-tight mt-1">Pasar a p.u.</span>
+    </button>
+
+    <!-- Tab Cambio Base -->
+    <button onclick="switchTab('cambio-base')" id="nav-btn-cambio-base" class="flex flex-col items-center justify-center w-20 text-slate-500 hover:text-slate-300 transition-all active:scale-90">
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8.89M9 11l3 3L22 4" />
+      </svg>
+      <span class="text-[10px] font-medium tracking-tight mt-1">Cambio Base</span>
+    </button>
+
+    <!-- Tab Reporte -->
+    <button onclick="switchTab('reporte')" id="nav-btn-reporte" class="flex flex-col items-center justify-center w-20 text-slate-500 hover:text-slate-300 transition-all active:scale-90 relative">
+      <div id="nav-report-badge" class="absolute top-0 right-4 h-4 w-4 bg-emerald-500 text-slate-950 text-[9px] font-bold rounded-full flex items-center justify-center hidden">0</div>
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <span class="text-[10px] font-medium tracking-tight mt-1">Reporte</span>
+    </button>
+
+  </nav>
+
+  <!-- JAVASCRIPT APP CONTROLLER -->
+  <script>
+    // State management
+    let state = {
+      activeTab: 'bases',
+      baseSubTab: 'individual',
+      cambioSubTab: 'cambio',
+      complexInputFormat: 'rect', // 'rect' or 'polar'
+      cambioComplexFormat: 'rect', // 'rect' or 'polar'
+      history: [],
+      // Keep track of the active computation responses to save
+      lastResults: {
+        'base-ind': null,
+        'unifilar': null,
+        'pu-conv': null,
+        'cambio-base': null,
+        'voltaje-referido': null
+      }
+    };
+
+    // Initialize SPA
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1. Try to load state from localStorage
+      loadStateFromLocalStorage();
+      
+      // 2. Set active classes and display subtab/tab
+      switchTab(state.activeTab);
+      setBaseSubTab(state.baseSubTab);
+      setCambioSubTab(state.cambioSubTab);
+      setComplexInputFormat(state.complexInputFormat);
+      setCambioComplexFormat(state.cambioComplexFormat);
+      
+      // 3. Render history
+      renderHistoryList();
+      
+      // 4. Update styles for active radio buttons
+      toggleBaseInputs();
+      togglePuDirection();
+      toggleImpedanciaOrigen();
+      
+      // 5. Trigger calculations for populated fields
+      calculateBaseIndividual();
+      calculateBaseUnifilar();
+      calculatePuConversion();
+      calculateCambioBase();
+      calculateVoltajeReferido();
+    });
+
+    // Save inputs to LocalStorage whenever they change
+    document.addEventListener('input', (e) => {
+      // Avoid saving history list on simple input
+      if (e.target.id && e.target.id !== 'report-title-input') {
+        saveInputsToLocalStorage();
+      }
+    });
+    document.addEventListener('change', (e) => {
+      saveInputsToLocalStorage();
+    });
+
+    // --- LOCAL STORAGE PERSISTENCE ---
+    function saveInputsToLocalStorage() {
+      const inputs = {};
+      const allInputs = document.querySelectorAll('input, select, textarea');
+      allInputs.forEach(el => {
+        if (el.type === 'radio') {
+          if (el.checked) inputs[el.name] = el.value;
+        } else {
+          inputs[el.id] = el.value;
+        }
+      });
+      localStorage.setItem('calcelec_inputs', JSON.stringify(inputs));
+    }
+
+    function loadStateFromLocalStorage() {
+      // Load inputs
+      try {
+        const savedInputs = localStorage.getItem('calcelec_inputs');
+        if (savedInputs) {
+          const inputs = JSON.parse(savedInputs);
+          for (const key in inputs) {
+            const el = document.getElementById(key);
+            if (el) {
+              el.value = inputs[key];
+            } else {
+              // Try radio buttons
+              const radios = document.getElementsByName(key);
+              if (radios.length > 0) {
+                radios.forEach(radio => {
+                  if (radio.value === inputs[key]) radio.checked = true;
+                });
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error loading inputs from localStorage", err);
+      }
+
+      // Load session variables
+      try {
+        const savedState = localStorage.getItem('calcelec_state');
+        if (savedState) {
+          const parsed = JSON.parse(savedState);
+          state.activeTab = parsed.activeTab || 'bases';
+          state.baseSubTab = parsed.baseSubTab || 'individual';
+          state.cambioSubTab = parsed.cambioSubTab || 'cambio';
+          state.complexInputFormat = parsed.complexInputFormat || 'rect';
+          state.cambioComplexFormat = parsed.cambioComplexFormat || 'rect';
+        }
+        
+        const savedHistory = localStorage.getItem('calcelec_history');
+        if (savedHistory) {
+          state.history = JSON.parse(savedHistory);
+        }
+      } catch (err) {
+        console.error("Error loading state from localStorage", err);
+      }
+    }
+
+    function saveStateVars() {
+      localStorage.setItem('calcelec_state', JSON.stringify({
+        activeTab: state.activeTab,
+        baseSubTab: state.baseSubTab,
+        cambioSubTab: state.cambioSubTab,
+        complexInputFormat: state.complexInputFormat,
+        cambioComplexFormat: state.cambioComplexFormat
+      }));
+      localStorage.setItem('calcelec_history', JSON.stringify(state.history));
+    }
+
+    // Reset everything
+    function clearAllInputs() {
+      localStorage.removeItem('calcelec_inputs');
+      const allInputs = document.querySelectorAll('input[type="number"], input[type="text"]');
+      allInputs.forEach(input => input.value = '');
+      
+      // Default selects
+      document.querySelectorAll('select').forEach(select => {
+        select.selectedIndex = 0;
+      });
+      
+      // Hide results
+      document.querySelectorAll('[id$="-result"]').forEach(res => res.classList.add('hidden'));
+      document.querySelectorAll('[id$="-warning"]').forEach(warn => warn.classList.add('hidden'));
+      
+      calculateBaseIndividual();
+      calculateBaseUnifilar();
+      calculatePuConversion();
+      calculateCambioBase();
+      calculateVoltajeReferido();
+    }
+
+    // --- NAVIGATION CONTROLLER ---
+    function switchTab(tabId) {
+      state.activeTab = tabId;
+      saveStateVars();
+      
+      // Hide all contents
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      
+      // Show selected content
+      const target = document.getElementById(`tab-${tabId}`);
+      if (target) target.classList.remove('hidden');
+      
+      // Update nav buttons style
+      const navButtons = {
+        'bases': document.getElementById('nav-btn-bases'),
+        'pasar-pu': document.getElementById('nav-btn-pasar-pu'),
+        'cambio-base': document.getElementById('nav-btn-cambio-base'),
+        'reporte': document.getElementById('nav-btn-reporte')
+      };
+      
+      Object.keys(navButtons).forEach(key => {
+        const btn = navButtons[key];
+        if (!btn) return;
+        
+        if (key === tabId) {
+          btn.classList.add('text-blue-400');
+          btn.classList.remove('text-slate-500', 'hover:text-slate-300');
+        } else {
+          btn.classList.remove('text-blue-400');
+          btn.classList.add('text-slate-500', 'hover:text-slate-300');
+        }
+      });
+    }
+
+    // Subtab Bases (Individual vs Unifilar)
+    function setBaseSubTab(subTabId) {
+      state.baseSubTab = subTabId;
+      saveStateVars();
+      
+      const btnInd = document.getElementById('subtab-btn-individual');
+      const btnUni = document.getElementById('subtab-btn-unifilar');
+      const secInd = document.getElementById('base-subtab-individual');
+      const secUni = document.getElementById('base-subtab-unifilar');
+      
+      if (subTabId === 'individual') {
+        btnInd.classList.add('bg-slate-800', 'text-blue-400');
+        btnInd.classList.remove('text-slate-400');
+        btnUni.classList.remove('bg-slate-800', 'text-blue-400');
+        btnUni.classList.add('text-slate-400');
+        secInd.classList.remove('hidden');
+        secUni.classList.add('hidden');
+      } else {
+        btnUni.classList.add('bg-slate-800', 'text-blue-400');
+        btnUni.classList.remove('text-slate-400');
+        btnInd.classList.remove('bg-slate-800', 'text-blue-400');
+        btnInd.classList.add('text-slate-400');
+        secUni.classList.remove('hidden');
+        secInd.classList.add('hidden');
+      }
+    }
+
+    // Subtab Cambio Base (Cambio vs Referido)
+    function setCambioSubTab(subTabId) {
+      state.cambioSubTab = subTabId;
+      saveStateVars();
+      
+      const btnCam = document.getElementById('subtab-btn-cambio');
+      const btnRef = document.getElementById('subtab-btn-referido');
+      const secCam = document.getElementById('cambio-subtab-cambio');
+      const secRef = document.getElementById('cambio-subtab-referido');
+      
+      if (subTabId === 'cambio') {
+        btnCam.classList.add('bg-slate-800', 'text-blue-400');
+        btnCam.classList.remove('text-slate-400');
+        btnRef.classList.remove('bg-slate-800', 'text-blue-400');
+        btnRef.classList.add('text-slate-400');
+        secCam.classList.remove('hidden');
+        secRef.classList.add('hidden');
+      } else {
+        btnRef.classList.add('bg-slate-800', 'text-blue-400');
+        btnRef.classList.remove('text-slate-400');
+        btnCam.classList.remove('bg-slate-800', 'text-blue-400');
+        btnCam.classList.add('text-slate-400');
+        secRef.classList.remove('hidden');
+        secCam.classList.add('hidden');
+      }
+    }
+
+    // Complex input toggles
+    function setComplexInputFormat(fmt) {
+      state.complexInputFormat = fmt;
+      saveStateVars();
+      
+      const btnRect = document.getElementById('cpx-btn-rect');
+      const btnPolar = document.getElementById('cpx-btn-polar');
+      const grpRect = document.getElementById('cpx-group-rect');
+      const grpPolar = document.getElementById('cpx-group-polar');
+      
+      if (fmt === 'rect') {
+        btnRect.classList.add('bg-slate-800', 'text-emerald-400');
+        btnRect.classList.remove('text-slate-400');
+        btnPolar.classList.remove('bg-slate-800', 'text-emerald-400');
+        btnPolar.classList.add('text-slate-400');
+        grpRect.classList.remove('hidden');
+        grpPolar.classList.add('hidden');
+      } else {
+        btnPolar.classList.add('bg-slate-800', 'text-emerald-400');
+        btnPolar.classList.remove('text-slate-400');
+        btnRect.classList.remove('bg-slate-800', 'text-emerald-400');
+        btnRect.classList.add('text-slate-400');
+        grpPolar.classList.remove('hidden');
+        grpRect.classList.add('hidden');
+      }
+    }
+
+    function setCambioComplexFormat(fmt) {
+      state.cambioComplexFormat = fmt;
+      saveStateVars();
+      
+      const btnRect = document.getElementById('cambio-cpx-btn-rect');
+      const btnPolar = document.getElementById('cambio-cpx-btn-polar');
+      const grpRect = document.getElementById('cambio-cpx-rect');
+      const grpPolar = document.getElementById('cambio-cpx-polar');
+      
+      if (fmt === 'rect') {
+        btnRect.classList.add('bg-slate-800', 'text-indigo-400');
+        btnRect.classList.remove('text-slate-400');
+        btnPolar.classList.remove('bg-slate-800', 'text-indigo-400');
+        btnPolar.classList.add('text-slate-400');
+        grpRect.classList.remove('hidden');
+        grpPolar.classList.add('hidden');
+      } else {
+        btnPolar.classList.add('bg-slate-800', 'text-indigo-400');
+        btnPolar.classList.remove('text-slate-400');
+        btnRect.classList.remove('bg-slate-800', 'text-indigo-400');
+        btnRect.classList.add('text-slate-400');
+        grpPolar.classList.remove('hidden');
+        grpRect.classList.add('hidden');
+      }
+    }
+
+    // Toggle Input visibility for bases (Sbase + Vbase vs Vbase + Ibase)
+    function toggleBaseInputs() {
+      const option = document.querySelector('input[name="base-ind-opcion"]:checked').value;
+      const sGroup = document.getElementById('base-ind-sbase-group');
+      const iGroup = document.getElementById('base-ind-ibase-group');
+      
+      const radios = document.querySelectorAll('input[name="base-ind-opcion"]');
+      radios.forEach(radio => {
+        const parentLabel = radio.closest('label');
+        const spanLabel = parentLabel.querySelector('.radio-label');
+        if (radio.checked) {
+          parentLabel.className = "flex items-center justify-center p-2 rounded-lg bg-blue-500/10 border border-blue-500/40 cursor-pointer text-xs select-none shadow-md transition-all";
+          spanLabel.className = "radio-label text-blue-400 font-bold";
+        } else {
+          parentLabel.className = "flex items-center justify-center p-2 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer text-xs select-none transition-all";
+          spanLabel.className = "radio-label text-slate-400";
+        }
+      });
+
+      if (option === '1') {
+        sGroup.classList.remove('hidden');
+        iGroup.classList.add('hidden');
+      } else {
+        sGroup.classList.add('hidden');
+        iGroup.classList.remove('hidden');
+      }
+    }
+
+    // Toggle Input label and formatting for PU Direction
+    function togglePuDirection() {
+      const dir = document.querySelector('input[name="pu-direccion"]:checked').value;
+      const lbl = document.getElementById('lbl-complex-input');
+      const title = document.getElementById('pu-result-title');
+      
+      const radios = document.querySelectorAll('input[name="pu-direccion"]');
+      radios.forEach(radio => {
+        const parentLabel = radio.closest('label');
+        const spanLabel = parentLabel.querySelector('.radio-label');
+        if (radio.checked) {
+          parentLabel.className = "flex items-center justify-center p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/40 cursor-pointer text-xs select-none shadow-md transition-all";
+          spanLabel.className = "radio-label text-emerald-400 font-bold";
+        } else {
+          parentLabel.className = "flex items-center justify-center p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer text-xs select-none transition-all";
+          spanLabel.className = "radio-label text-slate-400";
+        }
+      });
+
+      if (dir === 'real2pu') {
+        lbl.innerText = "Valor Real de la Variable";
+        title.innerText = "Cantidad Convertida a p.u.";
+      } else {
+        lbl.innerText = "Valor en p.u. de la Variable";
+        title.innerText = "Cantidad Real Calculada";
+      }
+    }
+
+    // Toggle Cambio Base source (Placa % vs Zpu1)
+    function toggleImpedanciaOrigen() {
+      const type = document.querySelector('input[name="cambio-tipo-z"]:checked').value;
+      const plaqueGroup = document.getElementById('cambio-placa-group');
+      const complexGroup = document.getElementById('cambio-zpu1-group');
+      
+      const radios = document.querySelectorAll('input[name="cambio-tipo-z"]');
+      radios.forEach(radio => {
+        const parentLabel = radio.closest('label');
+        const spanLabel = parentLabel.querySelector('.radio-label');
+        if (radio.checked) {
+          parentLabel.className = "flex items-center justify-center p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/40 cursor-pointer text-xs select-none shadow-md transition-all";
+          spanLabel.className = "radio-label text-indigo-400 font-bold";
+        } else {
+          parentLabel.className = "flex items-center justify-center p-2 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer text-xs select-none transition-all";
+          spanLabel.className = "radio-label text-slate-400";
+        }
+      });
+
+      if (type === 'placa') {
+        plaqueGroup.classList.remove('hidden');
+        complexGroup.classList.add('hidden');
+      } else {
+        plaqueGroup.classList.add('hidden');
+        complexGroup.classList.remove('hidden');
+      }
+    }
+
+    // --- API MATH ENGINES ---
+
+    // 1. Base Individual
+    async function calculateBaseIndividual() {
+      const nombre = document.getElementById('base-ind-nombre').value;
+      const opcion = document.querySelector('input[name="base-ind-opcion"]:checked').value;
+      const sbase = parseFloat(document.getElementById('base-ind-sbase').value);
+      const sbase_unit = document.getElementById('base-ind-sbase-unit').value;
+      const vbase = parseFloat(document.getElementById('base-ind-vbase').value);
+      const vbase_unit = document.getElementById('base-ind-vbase-unit').value;
+      const ibase = parseFloat(document.getElementById('base-ind-ibase').value);
+      const ibase_unit = document.getElementById('base-ind-ibase-unit').value;
+
+      const card = document.getElementById('base-ind-result');
+      const warningBlock = document.getElementById('base-ind-warning');
+
+      // Check minimum inputs
+      if (isNaN(vbase) || (opcion === '1' && isNaN(sbase)) || (opcion === '2' && isNaN(ibase))) {
+        card.classList.add('hidden');
+        warningBlock.classList.add('hidden');
+        return;
+      }
+
+      // Safe values for the API request (falling back to 0 instead of NaN, which JSON.stringify would turn to null)
+      const sbase_val = isNaN(sbase) ? 0.0 : sbase;
+      const vbase_val = isNaN(vbase) ? 0.0 : vbase;
+      const ibase_val = isNaN(ibase) ? 0.0 : ibase;
+
+      try {
+        const res = await fetch('/api/calcular-base', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            opcion,
+            nombre,
+            sbase: sbase_val,
+            sbase_unit,
+            vbase: vbase_val,
+            vbase_unit,
+            ibase: ibase_val,
+            ibase_unit
+          })
+        });
+
+        if (!res.ok) throw new Error("Error en cálculo");
+        const data = await res.json();
+
+        // Update UI
+        document.getElementById('res-base-ind-sbase').innerText = `${data.sbase_mva.toFixed(4)} MVA (${(data.sbase_kva).toFixed(1)} kVA)`;
+        document.getElementById('res-base-ind-vbase').innerText = `${data.vbase_kv.toFixed(4)} kV`;
+        document.getElementById('res-base-ind-ibase').innerText = `${data.ibase_a.toFixed(4)} A`;
+        document.getElementById('res-base-ind-zbase').innerText = `${data.zbase_ohm.toFixed(4)} Ω`;
+        
+        // Desglose
+        document.getElementById('res-base-ind-desglose').innerText = data.desglose.join('\n');
+        card.classList.remove('hidden');
+
+        // Warning
+        if (data.vbase_warning) {
+          document.getElementById('base-ind-warning-text').innerText = data.vbase_warning;
+          warningBlock.classList.remove('hidden');
+        } else {
+          warningBlock.classList.add('hidden');
+        }
+
+        // Cache result for history saving
+        state.lastResults['base-ind'] = {
+          titulo: `Variables Base - ${nombre || 'Zona'}`,
+          datos_entrada: {
+            opcion_entrada: opcion === '1' ? 'Sbase & Vbase' : 'Vbase & Ibase',
+            nombre_zona: nombre || 'ZONA',
+            vbase_ingresado: `${vbase} ${vbase_unit}`,
+            sbase_ingresado: opcion === '1' ? `${sbase} ${sbase_unit}` : '-',
+            ibase_ingresado: opcion === '2' ? `${ibase} ${ibase_unit}` : '-'
+          },
+          datos_salida: {
+            sbase_mva: `${data.sbase_mva.toFixed(4)} MVA`,
+            vbase_kv: `${data.vbase_kv.toFixed(4)} kV`,
+            ibase_a: `${data.ibase_a.toFixed(4)} A`,
+            zbase_ohm: `${data.zbase_ohm.toFixed(4)} ohm`
+          },
+          desglose: data.desglose
+        };
+
+      } catch (err) {
+        console.error(err);
+        card.classList.add('hidden');
+        warningBlock.classList.add('hidden');
+      }
+    }
+
+    // 2. Unifilar 3 Zonas
+    async function calculateBaseUnifilar() {
+      const sbase = parseFloat(document.getElementById('unifilar-sbase').value);
+      const sbase_unit = document.getElementById('unifilar-sbase-unit').value;
+      const vbase1 = parseFloat(document.getElementById('unifilar-vbase1').value);
+      const vbase1_unit = document.getElementById('unifilar-vbase1-unit').value;
+      const t1_prim = parseFloat(document.getElementById('unifilar-t1-prim').value);
+      const t1_sec = parseFloat(document.getElementById('unifilar-t1-sec').value);
+      const t2_prim = parseFloat(document.getElementById('unifilar-t2-prim').value);
+      const t2_sec = parseFloat(document.getElementById('unifilar-t2-sec').value);
+
+      const card = document.getElementById('unifilar-result');
+
+      // Validate inputs
+      if (isNaN(sbase) || isNaN(vbase1) || isNaN(t1_prim) || isNaN(t1_sec) || isNaN(t2_prim) || isNaN(t2_sec)) {
+        card.classList.add('hidden');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/unifilar-zonas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sbase, sbase_unit, vbase1, vbase1_unit, t1_prim, t1_sec, t2_prim, t2_sec
+          })
+        });
+
+        if (!res.ok) throw new Error("Error en cálculo unifilar");
+        const data = await res.json();
+
+        // Update ratios display
+        document.getElementById('res-t1-ratio').innerText = `T1: ${t1_prim}/${t1_sec} kV`;
+        document.getElementById('res-t2-ratio').innerText = `T2: ${t2_prim}/${t2_sec} kV`;
+
+        // Update zones
+        const z1 = data.zones[0];
+        document.getElementById('res-z1-vbase').innerText = `${z1.vbase_kv.toFixed(3)} kV`;
+        document.getElementById('res-z1-ibase').innerText = `${z1.ibase_a.toFixed(2)} A`;
+        document.getElementById('res-z1-zbase').innerText = `${z1.zbase_ohm.toFixed(3)} Ω`;
+        toggleWarningBadge('zone1-warning-badge', z1.warning);
+
+        const z2 = data.zones[1];
+        document.getElementById('res-z2-vbase').innerText = `${z2.vbase_kv.toFixed(3)} kV`;
+        document.getElementById('res-z2-ibase').innerText = `${z2.ibase_a.toFixed(2)} A`;
+        document.getElementById('res-z2-zbase').innerText = `${z2.zbase_ohm.toFixed(3)} Ω`;
+        toggleWarningBadge('zone2-warning-badge', z2.warning);
+
+        const z3 = data.zones[2];
+        document.getElementById('res-z3-vbase').innerText = `${z3.vbase_kv.toFixed(3)} kV`;
+        document.getElementById('res-z3-ibase').innerText = `${z3.ibase_a.toFixed(2)} A`;
+        document.getElementById('res-z3-zbase').innerText = `${z3.zbase_ohm.toFixed(3)} Ω`;
+        toggleWarningBadge('zone3-warning-badge', z3.warning);
+
+        document.getElementById('res-z3-desglose').innerText = data.desglose.join('\n');
+        card.classList.remove('hidden');
+
+        // Cache result
+        state.lastResults['unifilar'] = {
+          titulo: 'Bases Unifilar Virtual (3 Zonas)',
+          datos_entrada: {
+            sbase_sistema: `${sbase} ${sbase_unit}`,
+            vbase_zona_1: `${vbase1} ${vbase1_unit}`,
+            relacion_t1: `${t1_prim} / ${t1_sec} kV`,
+            relacion_t2: `${t2_prim} / ${t2_sec} kV`
+          },
+          datos_salida: {
+            vbase_zona_1: `${z1.vbase_kv.toFixed(3)} kV`,
+            vbase_zona_2: `${z2.vbase_kv.toFixed(3)} kV`,
+            vbase_zona_3: `${z3.vbase_kv.toFixed(3)} kV`,
+            zbase_zona_1: `${z1.zbase_ohm.toFixed(3)} ohm`,
+            zbase_zona_2: `${z2.zbase_ohm.toFixed(3)} ohm`,
+            zbase_zona_3: `${z3.zbase_ohm.toFixed(3)} ohm`
+          },
+          desglose: data.desglose
+        };
+
+      } catch (err) {
+        console.error(err);
+        card.classList.add('hidden');
+      }
+    }
+
+    function toggleWarningBadge(elementId, warningText) {
+      const el = document.getElementById(elementId);
+      if (warningText) {
+        el.innerText = "¿No estándar?";
+        el.title = warningText;
+        el.classList.remove('hidden');
+      } else {
+        el.classList.add('hidden');
+      }
+    }
+
+    // 3. Conversión PU <-> Real
+    async function calculatePuConversion() {
+      const dir = document.querySelector('input[name="pu-direccion"]:checked').value;
+      const nombre = document.getElementById('pu-nombre').value || 'X';
+      const unidad = document.getElementById('pu-unidad').value || 'u';
+      const base = parseFloat(document.getElementById('pu-base').value);
+      
+      const real = parseFloat(document.getElementById('cpx-real').value) || 0;
+      const imag = parseFloat(document.getElementById('cpx-imag').value) || 0;
+      const mag = parseFloat(document.getElementById('cpx-mag').value) || 0;
+      const ang = parseFloat(document.getElementById('cpx-ang').value) || 0;
+
+      const card = document.getElementById('pu-result');
+
+      if (isNaN(base) || base <= 0) {
+        card.classList.add('hidden');
+        return;
+      }
+
+      // Check if complex inputs are empty
+      if (state.complexInputFormat === 'rect' && isNaN(real) && isNaN(imag)) return;
+      if (state.complexInputFormat === 'polar' && isNaN(mag) && isNaN(ang)) return;
+
+      const endpoint = dir === 'real2pu' ? '/api/pasar-pu' : '/api/pasar-real';
+      
+      const payload = {
+        nombre,
+        unidad,
+        valor_base: base
+      };
+
+      if (dir === 'real2pu') {
+        payload.valor_real = {
+          real: real || 0,
+          imag: imag || 0,
+          mag: mag || 0,
+          ang: ang || 0,
+          format: state.complexInputFormat
+        };
+      } else {
+        payload.valor_pu = {
+          real: real || 0,
+          imag: imag || 0,
+          mag: mag || 0,
+          ang: ang || 0,
+          format: state.complexInputFormat
+        };
+      }
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error("Error en conversión");
+        const data = await res.json();
+
+        // Update UI
+        document.getElementById('res-pu-rect').innerText = data.fmt_rect;
+        document.getElementById('res-pu-polar').innerText = data.fmt_polar;
+        document.getElementById('res-pu-desglose').innerText = data.desglose.join('\n');
+        card.classList.remove('hidden');
+
+        // Cache result
+        const calcTitle = dir === 'real2pu' ? `Pasar a p.u. - ${nombre}` : `Pasar a Real - ${nombre}`;
+        state.lastResults['pu-conv'] = {
+          titulo: calcTitle,
+          datos_entrada: {
+            variable: nombre,
+            base: `${base} ${unidad}`,
+            entrada_formato: state.complexInputFormat === 'rect' ? 'Rectangular' : 'Polar',
+            valor_entrada: state.complexInputFormat === 'rect' ? `${real} + j${imag}` : `${mag} ∠${ang}°`
+          },
+          datos_salida: {
+            rectangular: data.fmt_rect,
+            polar: data.fmt_polar
+          },
+          desglose: data.desglose
+        };
+
+      } catch (err) {
+        console.error(err);
+        card.classList.add('hidden');
+      }
+    }
+
+    // 4. Cambio de Base
+    async function calculateCambioBase() {
+      const nombre = document.getElementById('cambio-nombre').value || 'Z';
+      const tipoZ = document.querySelector('input[name="cambio-tipo-z"]:checked').value;
+      const x_pct = parseFloat(document.getElementById('cambio-x-pct').value);
+      
+      const real1 = parseFloat(document.getElementById('cambio-z1-real').value) || 0;
+      const imag1 = parseFloat(document.getElementById('cambio-z1-imag').value) || 0;
+      const mag1 = parseFloat(document.getElementById('cambio-z1-mag').value) || 0;
+      const ang1 = parseFloat(document.getElementById('cambio-z1-ang').value) || 0;
+
+      const sbase1 = parseFloat(document.getElementById('cambio-sbase1').value);
+      const sbase1_unit = document.getElementById('cambio-sbase1-unit').value;
+      const vbase1 = parseFloat(document.getElementById('cambio-vbase1').value);
+      const vbase1_unit = document.getElementById('cambio-vbase1-unit').value;
+
+      const sbase2 = parseFloat(document.getElementById('cambio-sbase2').value);
+      const sbase2_unit = document.getElementById('cambio-sbase2-unit').value;
+      const vbase2 = parseFloat(document.getElementById('cambio-vbase2').value);
+      const vbase2_unit = document.getElementById('cambio-vbase2-unit').value;
+
+      const card = document.getElementById('cambio-result');
+
+      // Validations
+      if (isNaN(sbase1) || isNaN(vbase1) || isNaN(sbase2) || isNaN(vbase2)) {
+        card.classList.add('hidden');
+        return;
+      }
+
+      if (tipoZ === 'placa' && isNaN(x_pct)) {
+        card.classList.add('hidden');
+        return;
+      }
+
+      const payload = {
+        nombre,
+        is_percentage: tipoZ === 'placa',
+        x_pct: x_pct || 0,
+        sbase1, sbase1_unit, vbase1, vbase1_unit,
+        sbase2, sbase2_unit, vbase2, vbase2_unit
+      };
+
+      if (tipoZ === 'complejo') {
+        payload.z_pu1 = {
+          real: real1 || 0,
+          imag: imag1 || 0,
+          mag: mag1 || 0,
+          ang: ang1 || 0,
+          format: state.cambioComplexFormat
+        };
+      }
+
+      try {
+        const res = await fetch('/api/cambio-base', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error("Error cambio de base");
+        const data = await res.json();
+
+        // Update UI
+        document.getElementById('res-cambio-rect').innerText = data.fmt_rect;
+        document.getElementById('res-cambio-polar').innerText = data.fmt_polar;
+        document.getElementById('res-cambio-zbase1').innerText = `${data.zbase1_ohm.toFixed(4)} Ω`;
+        document.getElementById('res-cambio-zbase2').innerText = `${data.zbase2_ohm.toFixed(4)} Ω`;
+        document.getElementById('res-cambio-zreal').innerText = `${data.fmt_zreal_ohm} Ω`;
+        
+        document.getElementById('res-cambio-desglose').innerText = data.desglose.join('\n');
+        card.classList.remove('hidden');
+
+        // Cache result
+        state.lastResults['cambio-base'] = {
+          titulo: `Cambio de Base - ${nombre}`,
+          datos_entrada: {
+            origen: tipoZ === 'placa' ? `Reactancia Placa: ${x_pct}%` : `Impedancia Compleja`,
+            base_1: `${sbase1} ${sbase1_unit} / ${vbase1} ${vbase1_unit}`,
+            base_2: `${sbase2} ${sbase2_unit} / ${vbase2} ${vbase2_unit}`
+          },
+          datos_salida: {
+            zpu2_rect: data.fmt_rect,
+            zpu2_polar: data.fmt_polar,
+            z_real: `${data.fmt_zreal_ohm} ohm`
+          },
+          desglose: data.desglose
+        };
+
+      } catch (err) {
+        console.error(err);
+        card.classList.add('hidden');
+      }
+    }
+
+    // 5. Voltaje Referido
+    async function calculateVoltajeReferido() {
+      const nombre = document.getElementById('ref-nombre').value || 'V';
+      const vorig = parseFloat(document.getElementById('ref-vorig').value);
+      const vorig_unit = document.getElementById('ref-vorig-unit').value;
+      const vnom_orig = parseFloat(document.getElementById('ref-vnom-orig').value);
+      const vnom_orig_unit = document.getElementById('ref-vnom-orig-unit').value;
+      const vnom_dest = parseFloat(document.getElementById('ref-vnom-dest').value);
+      const vnom_dest_unit = document.getElementById('ref-vnom-dest-unit').value;
+
+      const card = document.getElementById('referido-result');
+      const warningBlock = document.getElementById('ref-warning');
+
+      if (isNaN(vorig) || isNaN(vnom_orig) || isNaN(vnom_dest)) {
+        card.classList.add('hidden');
+        warningBlock.classList.add('hidden');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/voltaje-referido', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nombre,
+            v_origen: vorig, v_origen_unit: vorig_unit,
+            v_nom_origen: vnom_orig, v_nom_origen_unit: vnom_orig_unit,
+            v_nom_destino: vnom_dest, v_nom_destino_unit: vnom_dest_unit
+          })
+        });
+
+        if (!res.ok) throw new Error("Error en referido");
+        const data = await res.json();
+
+        // Update UI
+        document.getElementById('res-ref-vval').innerText = `${data.v_referido_kv.toFixed(4)} kV`;
+        document.getElementById('res-ref-desglose').innerText = data.desglose.join('\n');
+        card.classList.remove('hidden');
+
+        if (data.warning) {
+          document.getElementById('ref-warning-text').innerText = data.warning;
+          warningBlock.classList.remove('hidden');
+        } else {
+          warningBlock.classList.add('hidden');
+        }
+
+        // Cache result
+        state.lastResults['voltaje-referido'] = {
+          titulo: `Voltaje Referido - ${nombre}`,
+          datos_entrada: {
+            tensión_origen: `${vorig} ${vorig_unit}`,
+            nominal_primario: `${vnom_orig} ${vnom_orig_unit}`,
+            nominal_secundario: `${vnom_dest} ${vnom_dest_unit}`
+          },
+          datos_salida: {
+            voltaje_referido: `${data.v_referido_kv.toFixed(4)} kV`
+          },
+          desglose: data.desglose
+        };
+
+      } catch (err) {
+        console.error(err);
+        card.classList.add('hidden');
+        warningBlock.classList.add('hidden');
+      }
+    }
+
+
+    // --- HISTORY LOGGER (BITÁCORA) ---
+
+    function saveCurrentCalculation(typeKey) {
+      const calcData = state.lastResults[typeKey];
+      if (!calcData) {
+        alert("Primero completa los campos para calcular.");
+        return;
+      }
+
+      // Add a timestamp to ensure uniqueness or ordering
+      const item = {
+        tipo: typeKey,
+        titulo: calcData.titulo,
+        datos_entrada: { ...calcData.datos_entrada },
+        datos_salida: { ...calcData.datos_salida },
+        desglose: [ ...calcData.desglose ],
+        timestamp: new Date().toLocaleTimeString()
+      };
+
+      state.history.push(item);
+      saveStateVars();
+      renderHistoryList();
+      
+      // Visual feedback: briefly highlight button or show toast
+      alert(`Guardado: "${item.titulo}" añadido a la bitácora.`);
+    }
+
+    function deleteHistoryItem(index) {
+      state.history.splice(index, 1);
+      saveStateVars();
+      renderHistoryList();
+    }
+
+    function clearSessionHistory() {
+      if (confirm("¿Estás seguro de que deseas vaciar todo el historial de la sesión?")) {
+        state.history = [];
+        saveStateVars();
+        renderHistoryList();
+      }
+    }
+
+    function renderHistoryList() {
+      const container = document.getElementById('history-container');
+      const emptyMsg = document.getElementById('history-empty');
+      const counter = document.getElementById('history-counter');
+      const badge = document.getElementById('nav-report-badge');
+
+      if (!container) return;
+
+      container.innerHTML = '';
+      const count = state.history.length;
+      counter.innerText = `${count} cálculo${count !== 1 ? 's' : ''}`;
+      
+      // Update Bottom Bar Badge
+      if (count > 0) {
+        badge.innerText = count;
+        badge.classList.remove('hidden');
+        emptyMsg.classList.add('hidden');
+      } else {
+        badge.classList.add('hidden');
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+
+      state.history.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-md space-y-2.5 p-3.5 relative";
+        
+        let typeBadgeColor = 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+        if (item.tipo === 'pu-conv') typeBadgeColor = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+        if (item.tipo === 'cambio-base') typeBadgeColor = 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20';
+        if (item.tipo === 'voltaje-referido') typeBadgeColor = 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+
+        let paramsHtml = '';
+        for (const k in item.datos_entrada) {
+          paramsHtml += `<div class="text-[10px] text-slate-400"><span class="text-slate-500">${k}:</span> ${item.datos_entrada[k]}</div>`;
+        }
+        for (const k in item.datos_salida) {
+          paramsHtml += `<div class="text-[10px] text-slate-300 font-semibold"><span class="text-slate-400">${k}:</span> ${item.datos_salida[k]}</div>`;
+        }
+
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded border ${typeBadgeColor}">${item.tipo}</span>
+              <h4 class="text-xs font-bold text-slate-200 mt-1.5">${item.titulo} <span class="text-[10px] font-normal text-slate-500">(${item.timestamp})</span></h4>
+            </div>
+            <button onclick="deleteHistoryItem(${index})" class="text-slate-500 hover:text-red-400 p-1 rounded hover:bg-slate-850 active:scale-90 transition-all">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-1.5 bg-slate-950/40 p-2 rounded-lg border border-slate-850">
+            ${paramsHtml}
+          </div>
+
+          <details class="group mt-1">
+            <summary class="text-[10px] text-slate-500 cursor-pointer hover:text-slate-300 select-none flex justify-between items-center">
+              <span>Mostrar desarrollo matemático</span>
+              <span class="group-open:rotate-180">▼</span>
+            </summary>
+            <div class="mt-2 p-2 bg-slate-950 font-mono text-[9px] text-slate-400 rounded border border-slate-850 overflow-x-auto whitespace-pre no-scrollbar">${item.desglose.join('\n')}</div>
+          </details>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // --- REPORT GENERATION (PDF) ---
+    async function downloadReportPdf() {
+      if (state.history.length === 0) {
+        alert("La bitácora de cálculo está vacía. Guarda algunos cálculos antes de exportar.");
+        return;
+      }
+
+      const titulo = document.getElementById('report-title-input').value || "Reporte de Cálculos en Sistema por Unidad";
+
+      try {
+        const response = await fetch('/api/exportar-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            titulo,
+            historial: state.history
+          })
+        });
+
+        if (!response.ok) throw new Error("Error generando PDF");
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "desarrollo_pu.pdf";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+      } catch (err) {
+        console.error(err);
+        alert("Ocurrió un error al exportar el PDF.");
+      }
+    }
+
+  </script>
+</body>
+</html>
