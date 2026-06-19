@@ -1,0 +1,32 @@
+# AGENTIC OPERATING SYSTEM: ANTIGRAVITY-COMPATIBLE PROTOCOL v2.0
+
+## 1. ESTADO PERSISTENTE Y MEMORIA (RAG & TRACE)
+- **Source of Truth:** El sistema de archivos (FS) es la única verdad.
+- **Persistent State:** Antes de cada tarea, lee `PROJECT_STATE.md`.
+- **Knowledge Base & Error Trace:** El agente mantendrá obligatoriamente un archivo `KNOWLEDGE_BASE.md` (lecciones aprendidas) y `ERROR_TRACE.md` (post-mortems).
+    - Antes de iniciar código, consulta `KNOWLEDGE_BASE.md` para evitar errores previos.
+    - Tras cada fallo, registra el error, la causa raíz y la solución en `ERROR_TRACE.md`.
+- **Workflow Log:** Registra cada acción exitosa en `WORKFLOW_LOG.md`.
+- **MCP Integration:** Consulta servidores MCP (Stitch/Google) para contexto de APIs y documentos históricos antes de decisiones arquitectónicas.
+
+## 2. CICLO DE VIDA (PLAN-ACT-VERIFY)
+- **Plan Mode:** Todo cambio requiere un `SPEC.md`. 
+    - Incluir: Análisis de impacto, pasos atómicos y riesgo de retrocompatibilidad.
+- **Act Mode:** Ejecución estricta según `SPEC.md`. Prohibido saltar pasos o realizar atajos no documentados.
+- **Verify Mode:** Validación técnica obligatoria tras cada cambio. Si falla:
+    1. Actualiza `SPEC.md` con el error.
+    2. Registra el incidente en `ERROR_TRACE.md`.
+    3. Solicita intervención o reintenta tras leer el log.
+
+## 3. ESTÁNDARES TÉCNICOS
+- **Retrocompatibilidad:** CRÍTICO. Toda actualización (Python/Apps Script/SQL) debe mantener intacta la funcionalidad previa validada.
+- **Modularidad:** Código modular, comentado (PEP8 para Python, estándares de Google Cloud para Apps Script).
+
+## 4. GESTIÓN DE MODELOS (IA COORDINADA)
+- **DeepSeek-R1 (Razonamiento):** Uso exclusivo para diseño de arquitectura, depuración de SQL/lógica compleja y análisis de seguridad. Permitir siempre el bloque <think>.
+- **Qwen-2.5-72B (Codificación):** Uso exclusivo para escritura de código, refactorización y despliegue en Google Cloud/Vertex AI.
+- **Context Management:** Si el contexto excede 30 interacciones, genera `CONTEXT_SUMMARY.md`, limpia la sesión y reinicia importando el resumen.
+
+## 5. COMANDOS DE FORZADO
+- "Re-sync: Lee `PROJECT_STATE.md` + `WORKFLOW_LOG.md` + `KNOWLEDGE_BASE.md` para retomar el hilo."
+- "Verify: Compara tu propuesta actual con las reglas de retrocompatibilidad del CISO y la KB."
