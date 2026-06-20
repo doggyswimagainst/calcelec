@@ -566,7 +566,7 @@ def api_exportar_pdf(req: PdfRequest):
             self.setLineWidth(0.5)
             self.line(54, 48, 612 - 54, 48)
             
-            self.drawString(54, 34, "Desarrollado para Ingeniería Eléctrica de Potencia y Terreno")
+            self.drawString(54, 34, "Maximiliano Corral Buchhorsts — Valparaíso, Chile — 2026")
             page_text = f"Página {self._pageNumber} de {page_count}"
             self.drawRightString(612 - 54, 34, page_text)
             self.restoreState()
